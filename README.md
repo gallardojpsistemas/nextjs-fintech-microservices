@@ -1,36 +1,129 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Next.js Fintech Platform Frontend
+
+<p align="center">
+  <img src="https://assets.vercel.com/image/upload/v1662130559/nextjs/Icon_light_background.png" width="80" alt="Next.js Logo" />
+</p>
+
+<p align="center">
+  🚀 <strong>Live Demo:</strong> <a href="https://nextjs-fintech-microservices.vercel.app">nextjs-fintech-microservices.vercel.app</a>
+</p>
+
+A **modern frontend application** built with **Next.js** and **Tailwind CSS**. This project serves as the graphical interface for the [NestJS Fintech Microservices](https://github.com/gallardojpsistemas/nestjs-fintech-microservices) platform, showcasing how a client application interacts with a complex, distributed backend.
+
+---
+
+## Overview
+
+This repository contains the user interface designed to visually demonstrate the capabilities of the NestJS backend architecture. It provides an intuitive dashboard and dedicated flows for all the fintech operations supported by the microservices, including authentication, wallet management, and diverse payment methods.
+
+---
+
+## Connected Services
+
+This frontend communicates directly with the four autonomous backends of the NestJS ecosystem:
+
+- 🔐 **Auth Service**: Handles user login and JWT token management for protected routes.
+- 💰 **Wallet Service**: Displays balances and executes deposits, withdrawals, and peer-to-peer transfers.
+- 💳 **Payment Service**: Provides UI flows for PIX, Boletos, and Credit Card transactions (including captures and chargebacks).
+- 🧾 **Ledger Service**: Renders the immutable transaction history for audit trails.
+
+---
+
+## Tech Stack
+
+- **Framework**: Next.js (App Router)
+- **Library**: React 19
+- **Language**: TypeScript 5
+- **Styling**: Tailwind CSS v4
+- **Icons**: Lucide React
+- **Animations**: Framer Motion
+- **Authentication**: JWT Decode
+
+---
+
+## Features & Screens
+
+### 1. Authentication (`/login`)
+- Login portal that authenticates users and stores the JWT for subsequent API calls.
+- Role-based routing capabilities based on token payload.
+
+### 2. Dashboard (`/`)
+- Consolidated view of the user's current wallet balance.
+- Quick action links to essential financial operations.
+- Real-time display of recent ledger transactions.
+
+### 3. P2P Transfers (`/transfer`)
+- Form to transfer funds instantly to other registered users within the platform.
+
+### 4. Payments & Billing
+- **Deposit (`/deposit`)**: Direct additions to the wallet balance.
+- **Boletos (`/boletos`)**: Interface to generate bank slips, complete with barcode generation and copying functionality for payment simulation.
+- **Credit Cards (`/cards`)**: UI to simulate real-world card operations like capture, refund, and chargeback requests.
+- **PIX / Webhook Simulator (`/webhook`)**: A dedicated interface to trigger webhook events, simulating asynchronous payment confirmations from external banking providers.
+
+### 5. Transaction History (`/transactions`)
+- A detailed ledger view showing all financial movements (deposits, transfers, chargebacks) sequentially.
+
+---
 
 ## Getting Started
 
-First, run the development server:
+### Prerequisites
+
+- Node.js 18+
+- npm, pnpm, or yarn
+- The [NestJS Fintech Microservices](https://github.com/gallardojpsistemas/nestjs-fintech-microservices) backend running locally.
+
+### 1. Installation
+
+```bash
+git clone <this-repo-url>
+cd nextjs-fintech-microservices
+npm install
+```
+
+### 2. Environment Variables
+
+Create a `.env.local` file in the root directory linking to your local or deployed microservices APIs:
+
+```env
+# Example environment configuration
+NEXT_PUBLIC_AUTH_SERVICE_URL=http://localhost:3000
+NEXT_PUBLIC_WALLET_SERVICE_URL=http://localhost:3001
+NEXT_PUBLIC_LEDGER_SERVICE_URL=http://localhost:3002
+NEXT_PUBLIC_PAYMENT_SERVICE_URL=http://localhost:3003
+```
+*(Ensure to map these to the exact ports your NestJS services are running on).*
+
+### 3. Run the Development Server
 
 ```bash
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
 Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+---
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+## Design Philosophy
 
-## Learn More
+This frontend was built not just to be functional, but to feel like a **premium fintech product**:
+- **Clean UI**: Minimalist design with high contrast for financial data readability.
+- **Micro-interactions**: Smooth transitions and feedback states powered by Framer Motion.
+- **Responsive**: Fully adaptable to mobile, tablet, and desktop views.
 
-To learn more about Next.js, take a look at the following resources:
+---
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+## Author
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+**Juan Gallardo**
 
-## Deploy on Vercel
+- GitHub: [@gallardojpsistemas](https://github.com/gallardojpsistemas)
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+Portfolio project — crafted to demonstrate full-stack capabilities, particularly focusing on visualizing complex backend microservice architectures.
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+---
+
+## License
+
+UNLICENSED (Portfolio / Educational use)
