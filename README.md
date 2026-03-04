@@ -5,12 +5,14 @@
 </p>
 
 <p align="center">
-  🚀 <strong>Live Demo:</strong> <a href="https://nextjs-fintech-microservices.vercel.app">nextjs-fintech-microservices.vercel.app</a>
+  🚀 <strong style="font-size: 1.2em; color: #0070f3;">Live Demo:</strong> <a href="https://nextjs-fintech-microservices.vercel.app" style="font-size: 1.2em; font-weight: bold;">nextjs-fintech-microservices.vercel.app</a> 🌟
 </p>
 
 A **modern frontend application** built with **Next.js** and **Tailwind CSS**. This project serves as the graphical interface for the [NestJS Fintech Microservices](https://github.com/gallardojpsistemas/nestjs-fintech-microservices) platform, showcasing how a client application interacts with a complex, distributed backend.
 
 > ☁️ **Live Deployment Architecture:** The backend microservices are deployed and currently running on **Render**, while the database (DB) is hosted on **MongoDB Atlas**.
+> 
+> ⚠️ **Important Note:** Render spins down free web services that go 15 minutes without receiving inbound traffic. **If you are the first visitor in a while, please expect a delay of around 40-50 seconds for the initial requests** while the microservices wake up. Subsequent requests will be fast and responsive.
 
 ---
 
