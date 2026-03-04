@@ -10,6 +10,8 @@
 
 A **modern frontend application** built with **Next.js** and **Tailwind CSS**. This project serves as the graphical interface for the [NestJS Fintech Microservices](https://github.com/gallardojpsistemas/nestjs-fintech-microservices) platform, showcasing how a client application interacts with a complex, distributed backend.
 
+> ☁️ **Live Deployment Architecture:** The backend microservices are deployed and currently running on **Render**, while the database (DB) is hosted on **MongoDB Atlas**.
+
 ---
 
 ## Overview
@@ -88,10 +90,10 @@ Create a `.env.local` file in the root directory linking to your local or deploy
 
 ```env
 # Example environment configuration
-NEXT_PUBLIC_AUTH_SERVICE_URL=http://localhost:3000
-NEXT_PUBLIC_WALLET_SERVICE_URL=http://localhost:3001
-NEXT_PUBLIC_LEDGER_SERVICE_URL=http://localhost:3002
-NEXT_PUBLIC_PAYMENT_SERVICE_URL=http://localhost:3003
+NEXT_PUBLIC_AUTH_SERVICE_URL=http://localhost:3001
+NEXT_PUBLIC_WALLET_SERVICE_URL=http://localhost:3002
+NEXT_PUBLIC_LEDGER_SERVICE_URL=http://localhost:3003
+NEXT_PUBLIC_PAYMENT_SERVICE_URL=http://localhost:3004
 ```
 *(Ensure to map these to the exact ports your NestJS services are running on).*
 
