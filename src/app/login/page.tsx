@@ -13,6 +13,7 @@ export default function LoginPage() {
     const [password, setPassword] = useState("");
     const [isLoading, setIsLoading] = useState(false);
     const [error, setError] = useState<string | null>(null);
+    const [showRegisterModal, setShowRegisterModal] = useState(false);
 
     const handleLogin = async (e: React.FormEvent) => {
         e.preventDefault();
@@ -29,19 +30,43 @@ export default function LoginPage() {
                 setError("Invalid response from server");
             }
         } catch (err: any) {
-            // In case user hasn't registered yet, we'll try to register them automatically for testing convenience, 
-            // or you can just show the error.
-            try {
-                const regRes = await api.auth.register({ email, password });
-                if (regRes && regRes.access_token) {
-                    localStorage.setItem("token", regRes.access_token);
-                    localStorage.setItem("userEmail", email);
-                    router.push("/");
-                    return;
-                }
-            } catch (regErr: any) {
-                setError(err.message || "Failed to authenticate");
+            // User likely not found, prompt for auto-registration demonstration
+            setShowRegisterModal(true);
+        } finally {
+            setIsLoading(false);
+        }
+    };
+
+    const handleRegisterConfirm = async () => {
+        setIsLoading(true);
+        setError(null);
+        try {
+            // Some backends return the user object without a token on register.
+            // Let's call register, then immediately call login to get the token.
+            await api.auth.register({ email, password });
+
+            // If we are here, registration succeeded (or returned 201). Now login to get token:
+            const loginRes = await api.auth.login({ email, password });
+            if (loginRes && loginRes.access_token) {
+                localStorage.setItem("token", loginRes.access_token);
+                localStorage.setItem("userEmail", email);
+                router.push("/");
+                return;
+            } else {
+                setError("Registration succeeded, but auto-login failed.");
+                setShowRegisterModal(false);
             }
+        } catch (regErr: any) {
+            const errorMsg = regErr.message || "Failed to register";
+
+            // If the error is "User already exists" or similar, maybe they DO exist 
+            // but the first login attempt failed due to wrong password.
+            if (errorMsg.toLowerCase().includes("exist")) {
+                setError("User already exists. Please check your credentials.");
+            } else {
+                setError(errorMsg);
+            }
+            setShowRegisterModal(false);
         } finally {
             setIsLoading(false);
         }
@@ -156,6 +181,45 @@ export default function LoginPage() {
                     </p>
                 </motion.div>
             </div>
+
+            {/* Auto-Register Modal */}
+            {showRegisterModal && (
+                <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm p-4">
+                    <motion.div
+                        initial={{ opacity: 0, scale: 0.95 }}
+                        animate={{ opacity: 1, scale: 1 }}
+                        className="bg-[var(--color-surface)] border border-white/10 rounded-3xl p-6 max-w-sm w-full shadow-2xl relative overflow-hidden"
+                    >
+                        <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-[var(--color-primary)] to-[var(--color-secondary)]"></div>
+                        <h3 className="text-xl font-bold text-white mb-2">User Not Found</h3>
+                        <p className="text-zinc-400 mb-6 text-sm">
+                            The user does not exist. For demonstration purposes, a new user will be created with the entered data.
+                        </p>
+                        <div className="flex gap-3">
+                            <button
+                                type="button"
+                                onClick={() => setShowRegisterModal(false)}
+                                disabled={isLoading}
+                                className="flex-1 py-3 rounded-xl bg-white/5 hover:bg-white/10 text-white font-medium transition-colors"
+                            >
+                                Cancel
+                            </button>
+                            <button
+                                type="button"
+                                onClick={handleRegisterConfirm}
+                                disabled={isLoading}
+                                className="flex-1 py-3 rounded-xl bg-[var(--color-primary)] hover:bg-[var(--color-primary-hover)] text-white font-medium transition-colors flex items-center justify-center"
+                            >
+                                {isLoading ? (
+                                    <div className="w-5 h-5 border-2 border-[var(--color-primary)]/30 border-t-white rounded-full animate-spin"></div>
+                                ) : (
+                                    "Continue"
+                                )}
+                            </button>
+                        </div>
+                    </motion.div>
+                </div>
+            )}
 
         </div>
     );

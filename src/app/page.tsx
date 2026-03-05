@@ -99,7 +99,6 @@ export default function Home() {
       {/* Header Profile / Greetings */}
       <header className="px-6 pt-12 pb-6 flex justify-between items-center relative" ref={profileRef}>
         <div>
-          <p className="text-zinc-400 text-sm mb-1">Good morning,</p>
           <h1 className="text-2xl font-semibold capitalize">{userName}</h1>
         </div>
 
