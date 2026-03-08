@@ -23,6 +23,7 @@ export default function BoletosPage() {
     const [barcode, setBarcode] = useState("");
     const [isAmountLocked, setIsAmountLocked] = useState(false);
     const [paySuccess, setPaySuccess] = useState(false);
+    const [reissueSuccessData, setReissueSuccessData] = useState<any>(null);
     const generatedListRef = useRef<HTMLDivElement>(null);
 
     const [boletos, setBoletos] = useState<any[]>([]);
@@ -149,26 +150,37 @@ export default function BoletosPage() {
         }
     };
 
-    const handleSimulateReissue = async (txId: string) => {
+    const handleSimulateReissue = async (txId: string, dueDateStr: string) => {
         try {
             setActionLoading(txId + "_reissue");
-            alert("Note: For this to work in a real scenario, the backend requires the boleto to be expired and checked. This is just a test call.");
 
-            const nextMonth = new Date();
-            nextMonth.setMonth(nextMonth.getMonth() + 1);
+            // Local check: is it really past maturity?
+            const now = new Date();
+            const endOfDayDueDate = new Date(dueDateStr);
+            endOfDayDueDate.setUTCHours(23, 59, 59, 999);
 
-            const res = await api.payment.reissue(txId, nextMonth.toISOString());
+            if (now <= endOfDayDueDate) {
+                alert("You cannot reissue a Boleto before it has expired.");
+                return;
+            }
+
+            // Simulate network / processing delay for realism
+            await new Promise(resolve => setTimeout(resolve, 1000));
+
+            const res = await api.payment.reissue(txId, new Date().toISOString());
 
             setBoletos(prev => [
                 {
                     txId: res.newTxId,
                     amount: res.updatedAmount || 0,
                     status: "pending",
-                    dueDate: nextMonth.toISOString(),
+                    dueDate: res.newDueDate,
                     barcode: res.newTxId
                 },
                 ...prev.filter(b => b.txId !== txId)
             ]);
+
+            setReissueSuccessData(res);
 
         } catch (err: any) {
             console.error(err);
@@ -212,6 +224,56 @@ export default function BoletosPage() {
                         className="w-full py-4 rounded-2xl bg-[var(--color-surface)] border border-white/10 hover:bg-[var(--color-surface-hover)] transition-all font-semibold"
                     >
                         Pay Another Boleto
+                    </button>
+                    <button
+                        onClick={() => router.push("/")}
+                        className="w-full mt-4 py-4 rounded-2xl bg-transparent border border-white/5 hover:bg-white/5 transition-all font-semibold text-zinc-400 hover:text-white"
+                    >
+                        Back to Dashboard
+                    </button>
+                </motion.div>
+            </div>
+        );
+    }
+
+    if (reissueSuccessData) {
+        return (
+            <div className="flex flex-col h-full bg-[var(--color-background)] text-[var(--color-foreground)]">
+                <motion.div
+                    initial={{ opacity: 0, scale: 0.9 }}
+                    animate={{ opacity: 1, scale: 1 }}
+                    className="flex-1 flex flex-col items-center justify-center p-6"
+                >
+                    <div className="w-24 h-24 rounded-full bg-amber-500/10 flex items-center justify-center mb-8 relative">
+                        <motion.div
+                            initial={{ scale: 0 }}
+                            animate={{ scale: 1 }}
+                            transition={{ delay: 0.2, type: "spring" }}
+                            className="w-16 h-16 rounded-full bg-amber-500 flex items-center justify-center text-white shadow-lg shadow-amber-500/30"
+                        >
+                            <RefreshCw size={32} strokeWidth={3} />
+                        </motion.div>
+                        <div className="absolute inset-0 rounded-full border-2 border-amber-500/50 border-r-transparent animate-spin" style={{ animationDuration: '3s' }}></div>
+                    </div>
+
+                    <h2 className="text-3xl font-bold mb-2 text-center text-amber-500">Boleto Reissued</h2>
+                    <p className="text-zinc-400 text-center mb-8">
+                        The expired boleto was reissued. <br />
+                        Original Amount: <span className="text-white">${reissueSuccessData.originalAmount?.toFixed(2)}</span><br />
+                        Fine & Interest: <span className="text-red-400">+${(reissueSuccessData.fine + reissueSuccessData.interest)?.toFixed(2)}</span><br />
+                        New Due Date: <span className="text-white">{new Date(reissueSuccessData.newDueDate).toLocaleDateString()}</span><br />
+                        <span className="text-white font-medium mt-2 block text-xl">
+                            New Total: ${reissueSuccessData.updatedAmount?.toFixed(2)}
+                        </span>
+                    </p>
+
+                    <button
+                        onClick={() => {
+                            setReissueSuccessData(null);
+                        }}
+                        className="w-full py-4 rounded-2xl bg-[var(--color-surface)] border border-white/10 hover:bg-[var(--color-surface-hover)] transition-all font-semibold"
+                    >
+                        Return to Boletos
                     </button>
                     <button
                         onClick={() => router.push("/")}
@@ -364,7 +426,7 @@ export default function BoletosPage() {
 
                                         <div className="flex gap-2 pt-2 border-t border-white/5">
                                             <button
-                                                onClick={() => handleSimulateReissue(boleto.txId)}
+                                                onClick={() => handleSimulateReissue(boleto.txId, boleto.dueDate)}
                                                 disabled={actionLoading === (boleto.txId + "_reissue")}
                                                 className="w-full flex flex-1 items-center justify-center gap-2 bg-white/5 text-zinc-300 hover:bg-white/10 py-2.5 rounded-xl text-sm font-semibold transition-colors disabled:opacity-50"
                                             >
