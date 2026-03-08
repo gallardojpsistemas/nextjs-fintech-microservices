@@ -37,7 +37,7 @@ export default function BoletosPage() {
         try {
             const decoded = jwtDecode<JwtPayload>(token);
             setUserId(decoded.id);
-            setTargetUserId(decoded.id);
+            setTargetUserId("");
 
             // Set default due date to 7 days from now in DD/MM/YYYY
             const nextWeek = new Date();
@@ -77,7 +77,7 @@ export default function BoletosPage() {
     }, [barcode]);
 
     const handleGenerateBoleto = async () => {
-        if (Number(amount) <= 0 || !targetUserId || dueDate.length !== 10) return;
+        if (Number(amount) <= 0 || dueDate.length !== 10) return;
 
         // Parse DD/MM/YYYY to YYYY-MM-DD for backend
         const [day, month, year] = dueDate.split('/');
@@ -87,7 +87,8 @@ export default function BoletosPage() {
             setLoading(true);
             const res = await api.payment.create({
                 type: "boleto",
-                userId: targetUserId,
+                issuerId: userId,
+                payerId: targetUserId || undefined,
                 amount: Number(amount),
                 dueDate: isoDate,
             });
@@ -208,18 +209,18 @@ export default function BoletosPage() {
                                             placeholder="0"
                                         />
                                     </div>
-
                                     <div>
-                                        <label className="text-xs text-zinc-400 font-medium mb-1 block">Target User</label>
+                                        <label className="text-xs text-zinc-400 font-medium mb-1 block">Payer (Optional)</label>
                                         <div className="relative">
                                             <select
                                                 value={targetUserId}
                                                 onChange={(e) => setTargetUserId(e.target.value)}
                                                 className="w-full bg-black/20 border border-white/5 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-[var(--color-primary)] transition-colors appearance-none text-white cursor-pointer"
                                             >
-                                                {users.map(u => (
+                                                <option value="" className="bg-[var(--color-surface)] text-zinc-500">None (Anyone can pay)</option>
+                                                {users.filter(u => u._id !== userId).map(u => (
                                                     <option key={u._id} value={u._id} className="bg-[var(--color-surface)] text-white">
-                                                        {u.email} {u._id === userId ? "(You)" : ""}
+                                                        {u.email}
                                                     </option>
                                                 ))}
                                             </select>
@@ -228,7 +229,6 @@ export default function BoletosPage() {
                                             </div>
                                         </div>
                                     </div>
-
                                     <div>
                                         <label className="text-xs text-zinc-400 font-medium mb-1 block">Due Date (DD/MM/YYYY)</label>
                                         <input
@@ -254,7 +254,7 @@ export default function BoletosPage() {
 
                                 <button
                                     onClick={handleGenerateBoleto}
-                                    disabled={Number(amount) <= 0 || loading || !targetUserId || !dueDate}
+                                    disabled={Number(amount) <= 0 || loading || !dueDate}
                                     className="w-full flex items-center justify-center bg-[var(--color-primary)] hover:bg-[var(--color-primary-hover)] text-white py-4 rounded-2xl font-semibold transition-all shadow-lg shadow-violet-500/25 disabled:opacity-50 disabled:shadow-none"
                                 >
                                     {loading ? "Generating..." : "Generate Boleto"}
