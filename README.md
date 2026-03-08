@@ -10,7 +10,7 @@
 
 A **modern frontend application** built with **Next.js** and **Tailwind CSS**. This project serves as the graphical interface for the [NestJS Fintech Microservices](https://github.com/gallardojpsistemas/nestjs-fintech-microservices) platform, showcasing how a client application interacts with a complex, distributed backend.
 
-> ☁️ **Live Deployment Architecture:** The backend microservices are deployed and currently running on **Render**, while the database (DB) is hosted on **MongoDB Atlas**.
+> ☁️ **Live Deployment Architecture:** The backend microservices are deployed and currently running on **Render**, while the database (DB) is hosted on **MongoDB Atlas**, and message brokering is handled by **RabbitMQ** hosted on **CloudAMQP**.
 > 
 > ⚠️ **Important Note:** Render spins down free web services that go 15 minutes without receiving inbound traffic. **If you are the first visitor in a while, please expect a delay of around 40-50 seconds for the initial requests** while the microservices wake up. Subsequent requests will be fast and responsive.
 
@@ -30,6 +30,7 @@ This frontend communicates directly with the four autonomous backends of the Nes
 - 💰 **Wallet Service**: Displays balances and executes deposits, withdrawals, and peer-to-peer transfers.
 - 💳 **Payment Service**: Provides UI flows for PIX, Boletos, and Credit Card transactions (including captures and chargebacks).
 - 🧾 **Ledger Service**: Renders the immutable transaction history for audit trails.
+- 🐇 **Event Broker**: Asynchronous communication between these services is powered by **RabbitMQ**, hosted on **CloudAMQP**.
 
 ---
 
