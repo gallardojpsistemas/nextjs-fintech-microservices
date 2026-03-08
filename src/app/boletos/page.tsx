@@ -92,7 +92,7 @@ export default function BoletosPage() {
             setPayLoading(true);
             // "Pagar un boleto" means money exits the current user's wallet.
             await api.wallet.withdraw(userId, Number(payAmount));
-            alert("Boleto paid successfully! Funds withdrawn.");
+            alert("Boleto paid successfully! Transaction completed.");
             setPayAmount("0");
             setBarcode("");
         } catch (err: any) {
