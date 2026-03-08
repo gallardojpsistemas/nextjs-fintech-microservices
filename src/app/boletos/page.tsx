@@ -21,6 +21,7 @@ export default function BoletosPage() {
     // Pay feature states
     const [payAmount, setPayAmount] = useState<string>("0");
     const [barcode, setBarcode] = useState("");
+    const [isAmountLocked, setIsAmountLocked] = useState(false);
 
     const [boletos, setBoletos] = useState<any[]>([]);
     const [users, setUsers] = useState<any[]>([]);
@@ -52,6 +53,28 @@ export default function BoletosPage() {
             router.push("/login");
         }
     }, [router]);
+
+    useEffect(() => {
+        const fetchAmount = async () => {
+            if (!barcode.trim() || !barcode.startsWith('BOLETO-') || barcode.length < 10) {
+                setIsAmountLocked(false);
+                return;
+            }
+            try {
+                const payment = await api.payment.getByTxId(barcode.trim());
+                if (payment && payment.amount) {
+                    setPayAmount(String(payment.amount));
+                    setIsAmountLocked(true);
+                } else {
+                    setIsAmountLocked(false);
+                }
+            } catch (e) {
+                setIsAmountLocked(false);
+            }
+        };
+        const timeout = setTimeout(fetchAmount, 300);
+        return () => clearTimeout(timeout);
+    }, [barcode]);
 
     const handleGenerateBoleto = async () => {
         if (Number(amount) <= 0 || !targetUserId || dueDate.length !== 10) return;
@@ -297,18 +320,25 @@ export default function BoletosPage() {
                             <p className="text-sm text-zinc-400 mb-6">Enter the amount and barcode to pay an external boleto. Funds will be withdrawn from your wallet.</p>
 
                             <div className="space-y-4 mb-6">
-                                <div className="flex items-center gap-4 border-b border-white/10 pb-4">
-                                    <span className="text-3xl font-bold text-[var(--color-success)]">$</span>
+                                <div className="flex items-center gap-4 border-b border-white/10 pb-4 relative">
+                                    <span className={`text-3xl font-bold ${isAmountLocked ? 'text-zinc-500' : 'text-[var(--color-success)]'}`}>$</span>
                                     <input
                                         type="number"
                                         value={payAmount}
                                         onChange={(e) => {
+                                            if (isAmountLocked) return;
                                             const val = e.target.value.replace(/^0+(?=\d)/, '');
                                             setPayAmount(val || '0');
                                         }}
-                                        className="bg-transparent text-4xl font-bold tracking-tight text-white w-full focus:outline-none"
+                                        readOnly={isAmountLocked}
+                                        className={`bg-transparent text-4xl font-bold tracking-tight text-white w-full focus:outline-none ${isAmountLocked ? 'opacity-50 cursor-not-allowed' : ''}`}
                                         placeholder="0"
                                     />
+                                    {isAmountLocked && (
+                                        <span className="absolute right-0 top-1/2 -translate-y-1/2 text-xs font-semibold text-[var(--color-success)] bg-[var(--color-success)]/10 px-2 py-1 rounded-md">
+                                            Auto-filled
+                                        </span>
+                                    )}
                                 </div>
 
                                 <div>
