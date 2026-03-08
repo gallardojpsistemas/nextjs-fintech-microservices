@@ -56,6 +56,7 @@ export const api = {
         refund: (txId: string) => fetchWrapper(`${PAYMENT_URL}/payment/refund`, { method: 'POST', body: JSON.stringify({ txId }) }),
         chargeback: (txId: string) => fetchWrapper(`${PAYMENT_URL}/payment/chargeback`, { method: 'POST', body: JSON.stringify({ txId }) }),
         getPending: () => fetchWrapper(`${PAYMENT_URL}/payment/pending`),
+        getUserBoletos: (userId: string) => fetchWrapper(`${PAYMENT_URL}/payment/user/${userId}/boletos`),
         getByTxId: (txId: string) => fetchWrapper(`${PAYMENT_URL}/payment/transaction/${txId}`),
     }
 };
