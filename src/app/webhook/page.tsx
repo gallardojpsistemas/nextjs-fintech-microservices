@@ -32,6 +32,7 @@ export default function WebhookPage() {
             setSuccess(false);
 
             // confirmPix is actually confirmPayment in backend, handles both Pix and Boleto
+            await new Promise(resolve => setTimeout(resolve, 1000));
             await api.payment.confirmPix(txId.trim());
             setSuccess(true);
 

@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import { ArrowLeft, RefreshCw, Send, Check, Copy, ClipboardPaste } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { jwtDecode } from "jwt-decode";
@@ -22,6 +22,8 @@ export default function BoletosPage() {
     const [payAmount, setPayAmount] = useState<string>("0");
     const [barcode, setBarcode] = useState("");
     const [isAmountLocked, setIsAmountLocked] = useState(false);
+    const [paySuccess, setPaySuccess] = useState(false);
+    const generatedListRef = useRef<HTMLDivElement>(null);
 
     const [boletos, setBoletos] = useState<any[]>([]);
     const [users, setUsers] = useState<any[]>([]);
@@ -85,6 +87,7 @@ export default function BoletosPage() {
 
         try {
             setLoading(true);
+            await new Promise(resolve => setTimeout(resolve, 1000));
             const res = await api.payment.create({
                 type: "boleto",
                 issuerId: userId,
@@ -107,6 +110,9 @@ export default function BoletosPage() {
             alert("Failed to generate boleto");
         } finally {
             setLoading(false);
+            setTimeout(() => {
+                generatedListRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+            }, 100);
         }
     };
 
@@ -114,11 +120,10 @@ export default function BoletosPage() {
         if (Number(payAmount) <= 0 || !barcode || !userId) return;
         try {
             setPayLoading(true);
+            await new Promise(resolve => setTimeout(resolve, 1000));
             // "Pagar un boleto" means money exits the current user's wallet.
             await api.wallet.withdraw(userId, Number(payAmount));
-            alert("Boleto paid successfully! Transaction completed.");
-            setPayAmount("0");
-            setBarcode("");
+            setPaySuccess(true);
         } catch (err: any) {
             console.error(err);
             alert(err.message || "Payment failed");
@@ -155,6 +160,52 @@ export default function BoletosPage() {
             setActionLoading(null);
         }
     };
+    if (paySuccess) {
+        return (
+            <div className="flex flex-col h-full bg-[var(--color-background)] text-[var(--color-foreground)]">
+                <motion.div
+                    initial={{ opacity: 0, scale: 0.9 }}
+                    animate={{ opacity: 1, scale: 1 }}
+                    className="flex-1 flex flex-col items-center justify-center p-6"
+                >
+                    <div className="w-24 h-24 rounded-full bg-[var(--color-success)]/10 flex items-center justify-center mb-8 relative">
+                        <motion.div
+                            initial={{ scale: 0 }}
+                            animate={{ scale: 1 }}
+                            transition={{ delay: 0.2, type: "spring" }}
+                            className="w-16 h-16 rounded-full bg-[var(--color-success)] flex items-center justify-center text-white shadow-lg shadow-emerald-500/30"
+                        >
+                            <Check size={32} strokeWidth={3} />
+                        </motion.div>
+                        <div className="absolute inset-0 rounded-full border-2 border-[var(--color-success)]/50 border-r-transparent animate-spin" style={{ animationDuration: '3s' }}></div>
+                    </div>
+
+                    <h2 className="text-3xl font-bold mb-2 text-center">Boleto Paid Successfully!</h2>
+                    <p className="text-zinc-400 text-center mb-8">
+                        Your payment of <span className="text-white font-medium">${payAmount}</span> has been processed.
+                    </p>
+
+                    <button
+                        onClick={() => {
+                            setPaySuccess(false);
+                            setPayAmount("0");
+                            setBarcode("");
+                            setIsAmountLocked(false);
+                        }}
+                        className="w-full py-4 rounded-2xl bg-[var(--color-surface)] border border-white/10 hover:bg-[var(--color-surface-hover)] transition-all font-semibold"
+                    >
+                        Pay Another Boleto
+                    </button>
+                    <button
+                        onClick={() => router.push("/")}
+                        className="w-full mt-4 py-4 rounded-2xl bg-transparent border border-white/5 hover:bg-white/5 transition-all font-semibold text-zinc-400 hover:text-white"
+                    >
+                        Back to Dashboard
+                    </button>
+                </motion.div>
+            </div>
+        );
+    }
 
     return (
         <div className="flex flex-col h-full bg-[var(--color-background)] text-[var(--color-foreground)] overflow-y-auto pb-20">
@@ -218,8 +269,8 @@ export default function BoletosPage() {
                                                 className="w-full bg-black/20 border border-white/5 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-[var(--color-primary)] transition-colors appearance-none text-white cursor-pointer"
                                             >
                                                 <option value="" className="bg-[var(--color-surface)] text-zinc-500">None (Anyone can pay)</option>
-                                                {users.filter(u => u._id !== userId).map(u => (
-                                                    <option key={u._id} value={u._id} className="bg-[var(--color-surface)] text-white">
+                                                {users.filter(u => (u._id || u.id) !== userId).map(u => (
+                                                    <option key={u._id || u.id} value={u._id || u.id} className="bg-[var(--color-surface)] text-white">
                                                         {u.email}
                                                     </option>
                                                 ))}
@@ -261,7 +312,9 @@ export default function BoletosPage() {
                                 </button>
                             </div>
 
-                            <h2 className="text-lg font-semibold mt-8 mb-4">Generated Boletos</h2>
+                            <div ref={generatedListRef} className="mt-8">
+                                <h2 className="text-lg font-semibold mb-4">Generated Boletos</h2>
+                            </div>
                             <div className="space-y-4">
                                 {boletos.map((boleto) => (
                                     <div key={boleto.txId} className="bg-[var(--color-surface)] border border-white/5 rounded-2xl p-4 flex flex-col gap-4">
