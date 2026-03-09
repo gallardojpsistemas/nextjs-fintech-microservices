@@ -139,8 +139,8 @@ export default function BoletosPage() {
         try {
             setPayLoading(true);
             await new Promise(resolve => setTimeout(resolve, 1000));
-            // "Pagar un boleto" means money exits the current user's wallet.
-            await api.wallet.withdraw(userId, Number(payAmount));
+            // "Pagar un boleto" now correctly calls the payment service to orchestrate the payment
+            await api.payment.payBoleto({ txId: barcode.trim(), payerId: userId });
             setPaySuccess(true);
         } catch (err: any) {
             console.error(err);

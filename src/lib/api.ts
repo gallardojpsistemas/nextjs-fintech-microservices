@@ -50,13 +50,14 @@ export const api = {
     },
     payment: {
         create: (data: any) => fetchWrapper(`${PAYMENT_URL}/payment`, { method: 'POST', body: JSON.stringify(data) }),
+        payBoleto: (data: { txId: string, payerId: string }) => fetchWrapper(`${PAYMENT_URL}/payment/boleto/pay`, { method: 'POST', body: JSON.stringify(data) }),
         confirmPix: (txId: string) => fetchWrapper(`${PAYMENT_URL}/payment/webhook`, { method: 'POST', body: JSON.stringify({ txId }) }),
-        reissue: (txId: string, newDueDate: string) => fetchWrapper(`${PAYMENT_URL}/payment/reissue`, { method: 'POST', body: JSON.stringify({ txId, newDueDate }) }),
-        capture: (txId: string) => fetchWrapper(`${PAYMENT_URL}/payment/capture`, { method: 'POST', body: JSON.stringify({ txId }) }),
-        refund: (txId: string) => fetchWrapper(`${PAYMENT_URL}/payment/refund`, { method: 'POST', body: JSON.stringify({ txId }) }),
-        chargeback: (txId: string) => fetchWrapper(`${PAYMENT_URL}/payment/chargeback`, { method: 'POST', body: JSON.stringify({ txId }) }),
-        getPending: () => fetchWrapper(`${PAYMENT_URL}/payment/pending`),
-        getUserBoletos: (userId: string) => fetchWrapper(`${PAYMENT_URL}/payment/user/${userId}/boletos`),
+        reissue: (txId: string, newDueDate: string) => fetchWrapper(`${PAYMENT_URL}/payment/boleto/reissue`, { method: 'POST', body: JSON.stringify({ txId, newDueDate }) }),
+        capture: (txId: string) => fetchWrapper(`${PAYMENT_URL}/payment/card/capture`, { method: 'POST', body: JSON.stringify({ txId }) }),
+        refund: (txId: string) => fetchWrapper(`${PAYMENT_URL}/payment/card/refund`, { method: 'POST', body: JSON.stringify({ txId }) }),
+        chargeback: (txId: string) => fetchWrapper(`${PAYMENT_URL}/payment/card/chargeback`, { method: 'POST', body: JSON.stringify({ txId }) }),
+        getPending: () => fetchWrapper(`${PAYMENT_URL}/payment/transaction/pending`),
+        getUserBoletos: (userId: string) => fetchWrapper(`${PAYMENT_URL}/payment/boleto/user/${userId}`),
         getByTxId: (txId: string) => fetchWrapper(`${PAYMENT_URL}/payment/transaction/${txId}`),
     }
 };
