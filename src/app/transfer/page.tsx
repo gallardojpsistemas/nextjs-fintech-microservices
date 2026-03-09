@@ -83,9 +83,10 @@ export default function TransferPage() {
         setIsSending(true);
         setErrorMsg(null);
         try {
-            await api.wallet.transfer({
-                fromUserId: currentUserId,
-                toUserId: recipient.id,
+            await api.payment.create({
+                type: 'pix',
+                payerId: currentUserId,
+                issuerId: recipient.id,
                 amount: parseFloat(amount)
             });
             setStep("success");

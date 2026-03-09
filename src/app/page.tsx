@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState, useRef } from "react";
-import { ArrowDownLeft, ArrowUpRight, Plus, History, LogOut, User, Zap } from "lucide-react";
+import { ArrowDownLeft, ArrowUpRight, Plus, History, LogOut, User, Zap, RefreshCw } from "lucide-react";
 import { motion } from "framer-motion";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
@@ -22,6 +22,7 @@ export default function Home() {
   const [userName, setUserName] = useState("User");
   const [userEmail, setUserEmail] = useState("");
   const [isProfileOpen, setIsProfileOpen] = useState(false);
+  const [isRefreshing, setIsRefreshing] = useState(false);
   const profileRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -56,6 +57,24 @@ export default function Home() {
       setTransactions(historyRes || []);
     } catch (err) {
       console.error("Failed to fetch dashboard data", err);
+    }
+  };
+
+  const handleRefresh = async () => {
+    if (isRefreshing) return;
+    const token = localStorage.getItem("token");
+    if (!token) return;
+
+    setIsRefreshing(true);
+    try {
+      const decoded = jwtDecode<JwtPayload>(token);
+      await fetchData(decoded.id);
+      // Artificial delay so the animation is noticeable to the user even if DB is instant
+      await new Promise(resolve => setTimeout(resolve, 500));
+    } catch {
+      // ignore
+    } finally {
+      setIsRefreshing(false);
     }
   };
 
@@ -146,11 +165,21 @@ export default function Home() {
         className="mx-6 p-6 rounded-3xl bg-gradient-to-br from-[var(--color-surface)] to-[var(--color-background)] border border-white/5 shadow-2xl relative overflow-hidden"
       >
         {/* Decorative Glow */}
-        <div className="absolute top-0 right-0 w-32 h-32 bg-[var(--color-primary)] opacity-20 blur-[50px] rounded-full"></div>
+        <div className="absolute top-0 right-0 w-32 h-32 bg-[var(--color-primary)] opacity-20 blur-[50px] rounded-full pointer-events-none"></div>
 
-        <p className="text-zinc-400 text-sm font-medium mb-2">Total Balance</p>
+        <div className="flex items-center justify-between mb-2 relative z-10">
+          <p className="text-zinc-400 text-sm font-medium">Total Balance</p>
+          <button
+            onClick={handleRefresh}
+            disabled={isRefreshing}
+            className={`cursor-pointer w-8 h-8 rounded-full bg-white/5 flex items-center justify-center transition-all text-zinc-300 hover:text-white ${isRefreshing ? 'opacity-50 cursor-not-allowed bg-white/10' : 'hover:bg-white/10'}`}
+            title="Refresh balance"
+          >
+            <RefreshCw size={14} className={isRefreshing ? "animate-spin text-[var(--color-primary)]" : ""} />
+          </button>
+        </div>
         <div className="flex items-end gap-2 mb-6">
-          <h2 className="text-4xl font-bold tracking-tight">
+          <h2 className={`text-4xl font-bold tracking-tight transition-all duration-300 ${isRefreshing ? 'opacity-50 blur-[4px] scale-[0.98]' : 'opacity-100 blur-0 scale-100'}`}>
             {balance !== null ? formatMoney(balance) : "..."}
           </h2>
         </div>

@@ -15,7 +15,7 @@ async function fetchWrapper(url: string, options: RequestInit = {}) {
         ...(options.headers as Record<string, string> || {}),
     };
 
-    const response = await fetch(url, { ...options, headers });
+    const response = await fetch(url, { cache: 'no-store', ...options, headers });
 
     if (!response.ok) {
         const errorBody = await response.json().catch(() => ({}));

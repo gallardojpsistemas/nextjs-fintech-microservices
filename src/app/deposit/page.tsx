@@ -46,7 +46,11 @@ export default function Deposit() {
         if (Number(amount) <= 0 || !userId) return;
         try {
             setLoading(true);
-            await api.wallet.deposit(userId, Number(amount));
+            await api.payment.create({
+                type: 'pix',
+                issuerId: userId,
+                amount: Number(amount)
+            });
             setSuccess(true);
         } catch (err) {
             console.error(err);
