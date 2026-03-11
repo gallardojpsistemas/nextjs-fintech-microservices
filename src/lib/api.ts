@@ -59,6 +59,7 @@ export const api = {
         getPending: () => fetchWrapper(`${PAYMENT_URL}/payment/transaction/pending`),
         getUserBoletos: (userId: string) => fetchWrapper(`${PAYMENT_URL}/payment/boleto/user/${userId}`),
         getByTxId: (txId: string) => fetchWrapper(`${PAYMENT_URL}/payment/transaction/${txId}`),
+        settle: (txId: string) => fetchWrapper(`${PAYMENT_URL}/payment/boleto/settle`, { method: 'POST', body: JSON.stringify({ txId }) }),
         pixCharge: (data: { issuerId: string, amount: number }) => fetchWrapper(`${PAYMENT_URL}/payment/pix/charge`, { method: 'POST', body: JSON.stringify(data) }),
         pixTransfer: (data: { payerId: string, pixKey: string, amount: number }) => fetchWrapper(`${PAYMENT_URL}/payment/pix/transfer`, { method: 'POST', body: JSON.stringify(data) }),
         simulatePixPay: (data: { txId: string, payerId: string }) => fetchWrapper(`${PAYMENT_URL}/payment/simulate/pix/pay`, { method: 'POST', body: JSON.stringify(data) }),
