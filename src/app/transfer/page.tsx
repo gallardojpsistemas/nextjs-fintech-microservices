@@ -83,10 +83,9 @@ export default function TransferPage() {
         setIsSending(true);
         setErrorMsg(null);
         try {
-            await api.payment.create({
-                type: 'pix',
-                payerId: currentUserId,
-                issuerId: recipient.id,
+            await api.payment.pixTransfer({
+                payerId: currentUserId as string,
+                pixKey: recipient.id,
                 amount: parseFloat(amount)
             });
             setStep("success");
