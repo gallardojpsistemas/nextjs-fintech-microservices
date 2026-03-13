@@ -60,9 +60,9 @@ export default function TransactionsPage() {
         });
     };
 
-    // Simplified filtering based on DEPOSIT vs others
+    // Simplified filtering based on credit direction
     const filteredTransactions = transactions.filter((tx) => {
-        const isReceive = tx.type === "DEPOSIT" || tx.type === "REFUND";
+        const isReceive = tx.direction === "credit";
         const matchesSearch = tx.type.toLowerCase().includes(searchQuery.toLowerCase());
 
         if (!matchesSearch) return false;
